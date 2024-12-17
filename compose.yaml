@@ -1,4 +1,29 @@
 services:
+  tracetest:
+      image: kubeshop/tracetest:${TAG:-latest}
+      volumes:
+          - type: bind
+            source: ./tracetest/config.yaml
+            target: /app/tracetest.yaml
+          - type: bind
+            source: ./tracetest/provision.yaml
+            target: /app/provision.yaml
+      command: --provisioning-file /app/provision.yaml
+      ports:
+          - 11633:11633
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+      depends_on:
+        - otel-collector
+        - postgres
+      healthcheck:
+          test: ["CMD", "wget", "--spider", "localhost:11633"]
+          interval: 1s
+          timeout: 3s
+          retries: 60
+      environment:
+          TRACETEST_DEV: ${TRACETEST_DEV}
+
   postgres:
     image: postgres:13
     environment:
@@ -20,6 +45,7 @@ services:
       - "8081:8081"
     depends_on:
       - postgres
+      - otel-collector
 
   gateway:
     build:
@@ -43,12 +69,15 @@ services:
           - ./collector.yaml:/collector.yaml
       environment:
           - TRACETEST_ENDPOINT=tracetest:4317
-
-  openobserve:
-    image: public.ecr.aws/zinclabs/openobserve:latest
-    restart: unless-stopped
-    environment:
-      ZO_ROOT_USER_EMAIL: "root@example.com"
-      ZO_ROOT_USER_PASSWORD: "Complexpass#123"
-    ports:
-      - "5080:5080"
+  #
+  #  openobserve:
+  #    image: public.ecr.aws/zinclabs/openobserve:latest
+  #    restart: unless-stopped
+  #    environment:
+  #      ZO_ROOT_USER_EMAIL: "root@example.com"
+  #      ZO_ROOT_USER_PASSWORD: "Complexpass#123"
+  #      LOG_LEVEL: error
+  #    ports:
+  #      - "5080:5080"
+  #    depends_on:
+  #      - otel-collector

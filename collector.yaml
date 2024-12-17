@@ -13,7 +13,7 @@ processors:
 exporters:
   debug:
 
-  otlp/1:
+  otlp/tracetest:
     endpoint: ${TRACETEST_ENDPOINT}
     tls:
       insecure: true
@@ -32,4 +32,4 @@ service:
     traces/1:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlphttp/openobserve]
+      exporters: [debug, otlp/tracetest]
