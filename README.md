@@ -2,6 +2,9 @@
 
 - [tracetest で Trace-based Testing に触れてみる](https://ucpr.dev/articles/intro_trace_based_test)
 
+![image](https://github.com/user-attachments/assets/7c0991ce-5f23-49cf-9ac8-ab5d716e1878)
+
+
 ## requirement
 
 - tracetest cli
